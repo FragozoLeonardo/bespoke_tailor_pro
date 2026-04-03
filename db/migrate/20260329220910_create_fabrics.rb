@@ -3,7 +3,7 @@ class CreateFabrics < ActiveRecord::Migration[8.0]
     create_table :fabrics do |t|
       t.string :name, null: false
       t.integer :price_cents, default: 0, null: false
-      t.string :currency, default: "USD", null: false
+      t.integer :currency, default: "USD", null: false
       t.string :quality_grade
 
       t.timestamps

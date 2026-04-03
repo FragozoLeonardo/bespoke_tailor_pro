@@ -8,7 +8,7 @@ class Fabric < ApplicationRecord
              greater_than_or_equal_to: 0,
              message: "must be a positive value"
            }
-
+gi
   enum :quality_grade, {
     standard: 0,
     super_100s: 100,

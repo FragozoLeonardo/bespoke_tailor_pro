@@ -16,7 +16,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_220910) do
 
   create_table "fabrics", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "currency", default: "USD", null: false
+    t.integer "currency", null: false
     t.string "name", null: false
     t.integer "price_cents", default: 0, null: false
     t.string "quality_grade"
