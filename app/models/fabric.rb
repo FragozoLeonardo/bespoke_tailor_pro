@@ -1,14 +1,14 @@
 class Fabric < ApplicationRecord
   self.strict_loading_by_default = true
 
-  normalizes :name, with: ->(name) { name.strip }
-
   monetize :price_cents,
            numericality: {
              greater_than_or_equal_to: 0,
              message: "must be a positive value"
            }
-gi
+
+  normalizes :name, with: ->(name) { name.strip }
+
   enum :quality_grade, {
     standard: 0,
     super_100s: 100,
