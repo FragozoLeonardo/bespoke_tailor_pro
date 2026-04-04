@@ -23,6 +23,5 @@ class Fabric < ApplicationRecord
   scope :alphabetical, -> { order(:name) }
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
-  # Garante que a moeda seja válida antes de tentar monetizar
   validates :currency, presence: true, inclusion: { in: %w[USD JPY BRL EUR] }
 end

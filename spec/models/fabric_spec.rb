@@ -31,7 +31,7 @@ RSpec.describe Fabric, type: :model do
     end
   end
 
-  describe "Multi-currency handling (The Japan Test 🇯🇵)" do
+  describe "Multi-currency handling" do
     it "formats USD with two decimal places ($150.00)" do
       fabric = build(:fabric, price_cents: 15000, currency: "USD")
       expect(fabric.price.format).to eq("$150.00")
