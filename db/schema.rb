@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_29_220910) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_04_021145) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "fabrics", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "currency", null: false
+    t.string "currency", limit: 3, default: "USD", null: false
     t.string "name", null: false
     t.integer "price_cents", default: 0, null: false
     t.string "quality_grade"
