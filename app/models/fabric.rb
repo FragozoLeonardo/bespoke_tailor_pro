@@ -16,7 +16,7 @@ class Fabric < ApplicationRecord
   validates :currency, presence: true, inclusion: { in: %w[USD JPY EUR BRL] }
   validates :price_cents, numericality: {
     greater_than_or_equal_to: 0,
-    message: "must be a positive value"
+    message: "must be a non-negative value"
   }
 
   validate :premium_requires_high_quality

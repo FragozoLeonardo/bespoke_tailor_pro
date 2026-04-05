@@ -15,7 +15,7 @@ RSpec.describe Fabric, type: :model do
     it "requires a positive price" do
       fabric = build(:fabric, price_cents: -1)
       expect(fabric).not_to be_valid
-      expect(fabric.errors[:price_cents]).to include("must be a positive value")
+      expect(fabric.errors[:price_cents]).to include("must be a non-negative value")
     end
 
     it "enforces unique names ignoring case and spaces" do
@@ -28,6 +28,13 @@ RSpec.describe Fabric, type: :model do
       invalid_fabric = build(:fabric, currency: "XYZ")
       expect(invalid_fabric).not_to be_valid
       expect(invalid_fabric.errors[:currency]).to include("is not included in the list")
+    end
+
+    it "does not allow premium price with standard quality" do
+      fabric = build(:fabric, price_cents: 25000, quality_grade: :standard)
+
+      expect(fabric).not_to be_valid
+      expect(fabric.errors[:quality_grade]).to include("must be a superior grade for premium pricing")
     end
   end
 
