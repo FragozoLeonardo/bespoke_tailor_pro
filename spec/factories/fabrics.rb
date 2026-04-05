@@ -1,13 +1,21 @@
 FactoryBot.define do
   factory :fabric do
-    name { "Italian Wool" }
-    price_cents { 15000 }
+    sequence(:name) { |n| "Fabric #{n}" }
+    price_cents { 10000 }
+    currency { "USD" }
     quality_grade { :standard }
 
     trait :premium do
-      name { "Premium Cashmere" }
-      price_cents { 30000 }
-      quality_grade { :super_150s }
+      name { "Loro Piana Super 150s" }
+      price_cents { 25000 }
+      quality_grade { :elite }
+    end
+
+    trait :japanese_silk do
+      name { "Kyoto Imperial Silk" }
+      currency { "JPY" }
+      price_cents { 500000 }
+      quality_grade { :elite }
     end
   end
 end
