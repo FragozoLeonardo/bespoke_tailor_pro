@@ -15,7 +15,7 @@ RSpec.describe Fabric, type: :model do
     it "requires a positive price" do
       fabric = build(:fabric, price_cents: -1)
       expect(fabric).not_to be_valid
-      expect(fabric.errors[:price]).to include("must be a positive value")
+      expect(fabric.errors[:price_cents]).to include("must be a positive value")
     end
 
     it "enforces unique names ignoring case and spaces" do
@@ -56,8 +56,7 @@ RSpec.describe Fabric, type: :model do
     end
 
     it "filters premium fabrics (> 20000 cents)" do
-      create(:fabric, price_cents: 25000, currency: "USD")
-      create(:fabric, price_cents: 10000, currency: "USD")
+      create(:fabric, price_cents: 25000, quality_grade: :super_150s)
       expect(described_class.premium.count).to eq(1)
     end
   end

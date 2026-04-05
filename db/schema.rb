@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_04_021145) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_05_004111) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,8 +19,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_021145) do
     t.string "currency", limit: 3, default: "USD", null: false
     t.string "name", null: false
     t.integer "price_cents", default: 0, null: false
-    t.string "quality_grade"
+    t.integer "quality_grade", default: 0, null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_fabrics_on_name", unique: true
+    t.index "lower((name)::text)", name: "index_fabrics_on_lower_name", unique: true
   end
 end

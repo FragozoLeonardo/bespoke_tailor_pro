@@ -1,8 +1,13 @@
 FactoryBot.define do
   factory :fabric do
-    name { "#{Faker::Commerce.product_name} #{Faker::Number.number(digits: 3)}s" }
+    name { "Italian Wool" }
     price_cents { 15000 }
-    currency { "USD" }
-    quality_grade { Fabric.quality_grades.keys.sample }
+    quality_grade { :standard }
+
+    trait :premium do
+      name { "Premium Cashmere" }
+      price_cents { 30000 }
+      quality_grade { :super_150s }
+    end
   end
 end
