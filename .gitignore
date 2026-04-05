@@ -39,3 +39,7 @@
 
 /node_modules
 /.idea
+
+# Ignore Docker-specific files
+/tmp/db
+/vendor/bundle

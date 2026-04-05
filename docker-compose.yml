@@ -9,14 +9,20 @@ services:
       - "5432:5432"
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.dev
     command: bundle exec rails s -p 3000 -b '0.0.0.0'
     volumes:
       - .:/rails
+      - gem_cache:/usr/local/bundle
     ports:
       - "3000:3000"
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       RAILS_ENV: development
+
+volumes:
+  gem_cache:
