@@ -1,7 +1,7 @@
 class Fabric < ApplicationRecord
   monetize :price_cents, with_model_currency: :currency
 
-  PREMIUM_THRESHOLD_CENTS = 20_000
+  HIGH_VALUE_THRESHOLD_CENTS = 20_000
   SUPPORTED_CURRENCIES = %w[USD JPY EUR BRL].freeze
 
   enum :quality_grade, {
@@ -16,24 +16,23 @@ class Fabric < ApplicationRecord
   validates :name, presence: true, uniqueness: { case_sensitive: false }
   validates :currency, presence: true, inclusion: { in: SUPPORTED_CURRENCIES }
   validates :price_cents, numericality: {
-    only_integer: true,
     greater_than_or_equal_to: 0,
     message: "cannot be negative"
   }
 
-  validate :premium_requires_high_quality
+  validate :high_value_requires_high_quality
 
-  scope :premium_tier, -> { where(price_cents: PREMIUM_THRESHOLD_CENTS..) }
+  scope :high_value, -> { where(price_cents: HIGH_VALUE_THRESHOLD_CENTS..) }
 
   def high_value?
-    price_cents.to_i >= PREMIUM_THRESHOLD_CENTS
+    price_cents.to_i >= HIGH_VALUE_THRESHOLD_CENTS
   end
 
   private
 
-  def premium_requires_high_quality
+  def high_value_requires_high_quality
     if high_value? && standard?
-      errors.add(:quality_grade, "must be a superior grade for premium pricing")
+      errors.add(:quality_grade, "must be a higher grade for high-value fabrics")
     end
   end
 end

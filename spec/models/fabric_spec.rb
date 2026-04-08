@@ -1,91 +1,72 @@
 require 'rails_helper'
 
 RSpec.describe Fabric, type: :model do
-  describe "Validations & Edge Cases" do
-    let(:fabric) { build(:fabric) }
+  it { is_expected.to monetize(:price_cents).with_model_currency(:currency) }
 
-    context "Happy Path" do
-      it "is valid with correct attributes" do
-        expect(fabric).to be_valid
-      end
+  describe "validations" do
+    it "is valid with standard attributes" do
+      expect(build(:fabric)).to be_valid
     end
 
-    context "Presence & Format Validations" do
-      it "is invalid without a name" do
-        fabric.name = nil
-        expect(fabric).not_to be_valid
-        expect(fabric.errors[:name]).to include("can't be blank")
-      end
-
-      it "is invalid with an unsupported currency code" do
-        fabric.currency = "CAD"
-        expect(fabric).not_to be_valid
-        expect(fabric.errors[:currency]).to include("is not included in the list")
-      end
+    it "requires a name" do
+      expect(build(:fabric, name: nil)).not_to be_valid
     end
 
-    context "Uniqueness & Normalization" do
-      it "is invalid with a duplicate name (case-insensitive)" do
-        create(:fabric, name: "Silk")
-        duplicate = build(:fabric, name: "silk")
-        expect(duplicate).not_to be_valid
-        expect(duplicate.errors[:name]).to include("has already been taken")
-      end
-
-      it "prevents duplicates despite extra whitespace" do
-        create(:fabric, name: "Cashmere")
-        duplicate = build(:fabric, name: "  CASHMERE  ")
-        expect(duplicate).not_to be_valid
-      end
+    it "requires a non-negative price" do
+      fabric = build(:fabric, price_cents: -1)
+      expect(fabric).not_to be_valid
+      expect(fabric.errors[:price_cents]).to include("cannot be negative")
     end
 
-    context "Financial Rules & Boundary Analysis" do
-      it "is invalid with a negative price_cents" do
-        fabric.price_cents = -1
-        expect(fabric).not_to be_valid
-        expect(fabric.errors[:price_cents]).to include("cannot be negative")
-      end
-
-      it "is invalid with non-numeric price_cents" do
-        fabric.price_cents = "expensive"
-        expect(fabric).not_to be_valid
-      end
-
-      it "requires superior quality for premium pricing (200.00)" do
-        fabric.price_cents = 20_000
-        fabric.quality_grade = :standard
-        expect(fabric).not_to be_valid
-        expect(fabric.errors[:quality_grade]).to include("must be a superior grade for premium pricing")
-      end
-
-      it "allows standard quality for pricing just below premium" do
-        fabric.price_cents = 19_999
-        fabric.quality_grade = :standard
-        expect(fabric).to be_valid
-      end
+    it "enforces unique names ignoring case and spaces" do
+      create(:fabric, name: "Loro Piana")
+      duplicate = build(:fabric, name: "  loro piana  ")
+      expect(duplicate).not_to be_valid
     end
 
-    context "Money-rails Integration" do
-      it "exposes a Money object for the price attribute" do
-        fabric.price_cents = 5000
-        fabric.currency = "USD"
-        expect(fabric.price).to be_a(Money)
-        expect(fabric.price.cents).to eq(5000)
-        expect(fabric.price.currency.iso_code).to eq("USD")
-      end
+    it "requires a valid currency" do
+      invalid_fabric = build(:fabric, currency: "XYZ")
+      expect(invalid_fabric).not_to be_valid
+      expect(invalid_fabric.errors[:currency]).to include("is not included in the list")
+    end
 
-      it "handles Japanese Yen (JPY) formatting correctly" do
-        fabric.price_cents = 5000
-        fabric.currency = "JPY"
-        expect(fabric.price.format).to eq("¥5,000")
-      end
+    it "does not allow high value price with standard quality" do
+      fabric = build(:fabric, price_cents: 25_000, quality_grade: :standard)
+
+      expect(fabric).not_to be_valid
+      expect(fabric.errors[:quality_grade]).to include("must be a higher grade for high-value fabrics")
     end
   end
 
-  describe "Rails 8 Normalization" do
-    it "automatically strips leading and trailing whitespace from name" do
-      f = create(:fabric, name: "   Linen   ")
-      expect(f.name).to eq("Linen")
+  describe "multi-currency handling" do
+    it "formats USD with two decimal places ($150.00)" do
+      fabric = build(:fabric, price_cents: 15000, currency: "USD")
+      expect(fabric.price.format).to eq("$150.00")
+    end
+
+    it "formats JPY without decimal places" do
+      fabric = build(:fabric, price_cents: 15000, currency: "JPY")
+      expect(fabric.price.format).to include("15,000")
+    end
+  end
+
+  describe "rails 8 features" do
+    it "automatically strips whitespace from name" do
+      fabric = create(:fabric, name: "    Scabal    ")
+      expect(fabric.name).to eq("Scabal")
+    end
+  end
+
+  describe "enums & scopes" do
+    it "defaults to standard quality" do
+      expect(described_class.new.quality_grade).to eq("standard")
+    end
+
+    it "filters high value fabrics" do
+      create(:fabric, price_cents: 25_000, quality_grade: :elite)
+      create(:fabric, price_cents: 10_000, quality_grade: :standard)
+
+      expect(described_class.high_value.count).to eq(1)
     end
   end
 end

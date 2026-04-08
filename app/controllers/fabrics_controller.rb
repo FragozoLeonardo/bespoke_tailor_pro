@@ -1,12 +1,12 @@
 class FabricsController < ApplicationController
   def index
-    @fabrics = Fabric.order(created_at: :desc)
+    @fabrics = Fabric.order(created_at: :desc).limit(50)
     @fabric = Fabric.new
   end
 
   def create
     result = Fabrics::CreateService.new(fabric_params).call
-    @fabric = result.data
+    @fabric = result.data || Fabric.new(fabric_params)
 
     if result.success?
       respond_to do |format|
@@ -15,8 +15,18 @@ class FabricsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("fabric_form", partial: "form", locals: { fabric: @fabric }), status: :unprocessable_entity }
-        format.html { render :index, status: :unprocessable_entity }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "fabric_form",
+            partial: "form",
+            locals: { fabric: @fabric }
+          ), status: :unprocessable_entity
+        end
+
+        format.html do
+          flash.now[:alert] = result.errors.to_sentence
+          render :index, status: :unprocessable_entity
+        end
       end
     end
   end
